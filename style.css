@@ -1,0 +1,340 @@
+/* reset  */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* general */
+
+:root {
+  --bg-color: #f1f6f9;
+  --color-1: #51a4fb;
+  --txt-color: #193655;
+  --white-color: #fff;
+  --border-color: #d3d2d2;
+  --font-inter: "Inter", sans-serif;
+  --font-raleway: "Raleway", sans-serif;
+}
+
+:root {
+  --shadow-color: 0deg 0% 63%;
+  --shadow-elevation-low: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
+    0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.34),
+    1px 2px 2.5px -2.5px hsl(var(--shadow-color) / 0.34);
+  --shadow-elevation-medium: inset 0.3px 0.5px 0.7px
+      hsl(var(--shadow-color) / 0.36),
+    inset 0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
+    inset 2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
+    inset 5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
+}
+
+body {
+  font-family: var(--font-inter);
+}
+
+.container {
+  min-width: 450px;
+}
+.header {
+  background: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: min-content;
+  display: grid;
+  grid-template:
+    "logo searchBar location toggleUnit" min-content
+    / minmax(120px, calc(100px + 5vw))
+    auto auto 100px;
+  column-gap: clamp(20px, 2.5vw, 50px);
+  row-gap: 15px;
+  align-items: center;
+  padding: 10px clamp(20px, 2.5vw, 50px);
+}
+
+.logo {
+  grid-area: logo;
+}
+
+.logo img {
+  width: clamp(120px, calc(100px + 8vw), 300px);
+}
+
+.location {
+  grid-area: location;
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-end;
+  column-gap: clamp(20px, 2.5vw, 50px);
+}
+
+.searchBar {
+  grid-area: searchBar;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchBar img {
+  position: absolute;
+  left: 5px;
+  width: 30px;
+}
+
+.searchBar input {
+  width: clamp(150px, 25vw, 400px);
+  height: 2.5rem;
+  border-right: none;
+  border: 1px solid lightgrey;
+  outline: none;
+  border-radius: 20px 0 0 20px;
+  padding: 5px 5px 5px 40px;
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.searchBar button {
+  padding: 0 10px;
+  height: 2.5rem;
+  border: none;
+  background-color: var(--color-1);
+  color: #fff;
+  border-radius: 0 20px 20px 0;
+  cursor: pointer;
+}
+
+.searchBar input::-webkit-search-cancel-button {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background-image: url("assets/close.svg");
+  background-size: contain;
+  background-position: center;
+  cursor: pointer;
+}
+
+/* toggle-unit */
+
+.toggleUnit {
+  grid-area: toggleUnit;
+}
+.toggleUnit label {
+  cursor: pointer;
+}
+
+.toggleUnit input {
+  position: absolute;
+  left: -9999px;
+}
+
+.toggleUnit label p {
+  z-index: 1;
+  font-family: var(--font-raleway);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.toggleUnit label {
+  position: relative;
+  width: 100px;
+  height: 2.5rem;
+  background-color: var(--color-1);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  user-select: none;
+}
+
+.toggleUnit label::before,
+.toggleUnit label::after {
+  content: "";
+  position: absolute;
+}
+
+.toggleUnit label::before {
+  top: 1px;
+  left: 1px;
+  width: 2.4rem;
+  height: 2.4rem;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.4s cubic-bezier(0.32, 0.91, 0.63, 1.18);
+}
+
+.toggleUnit input:checked + label::before {
+  transform: translateX(60px);
+  transition: all 0.3s cubic-bezier(0.32, 0.91, 0.63, 1.18);
+}
+
+/* weather info  */
+
+.weatherInfo {
+  width: 100%;
+  background: var(--bg-color);
+  box-shadow: var(--shadow-elevation-medium);
+}
+
+.wrapper {
+  max-width: 1024px;
+  margin: 0 auto;
+  border: 1px solid lightgray;
+  padding: 30px clamp(20px, 1.5vw, 50px);
+  color: var(--txt-color);
+}
+
+.currentWeather {
+  display: flex;
+  flex-direction: column;
+  background: var(--white-color);
+  padding: 20px 30px 5px 30px;
+  border-radius: 20px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.heading h3,
+h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.basicInfo > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+.basicInfo div > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+}
+
+.basicInfo > div:first-child {
+  padding: 10px 0 30px 0;
+}
+
+.basicInfo > div:not(:first-child) > div {
+  height: 40px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.basicInfo > div:last-child > div {
+  border-bottom: none;
+}
+
+#curInfo {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 50px;
+  align-items: center;
+}
+
+#curInfo img {
+  width: clamp(60px, 5vw, 120px);
+}
+#curInfo p:first-of-type {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+#curInfo p:last-of-type {
+  grid-column: 1 / -1;
+  font-size: 1.5rem;
+}
+/* media query */
+
+@media (max-width: 750px) {
+  .header {
+    grid-template:
+      "logo toggleUnit" min-content
+      "searchBar location" min-content
+      /
+      1fr max-content;
+    /* row-gap: 15px; */
+  }
+
+  .logo {
+    grid-area: logo;
+  }
+
+  .toggleUnit {
+    grid-area: toggleUnit;
+    justify-self: end;
+    align-self: end;
+  }
+
+  .searchBar {
+    grid-area: searchBar;
+  }
+
+  .searchBar input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .basicInfo > div {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .basicInfo div > div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+  }
+
+  .basicInfo > div:first-child {
+    padding: 10px 0 0px 0;
+  }
+  .basicInfo > div:first-child > div:last-child {
+    height: 40px;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .basicInfo > div:last-child > div:first-child {
+    border-bottom: 1px solid var(--border-color);
+  }
+}

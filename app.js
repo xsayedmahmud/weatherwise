@@ -1,13 +1,33 @@
-window.addEventListener("load", updateMargin);
-window.addEventListener("resize", updateMargin);
+const select = (selector) => document.querySelector(selector);
 
 function updateMargin() {
   const header = document.querySelector(".header");
   const weatherInfo = document.querySelector(".weatherInfo");
   const headerHeight = header.offsetHeight;
-  weatherInfo.style.height = `calc(100vh - ${headerHeight}px)`;
+  weatherInfo.style.height = `calc(100% - ${headerHeight}px)`;
   weatherInfo.style.marginTop = `${headerHeight}px`;
 }
+window.addEventListener("load", updateMargin);
+window.addEventListener("resize", updateMargin);
+
+function getUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const long = position.coords.latitude;
+        console.log(lat, long);
+      },
+      (error) => {
+        console.error(`Error getting location: ${error.message}`);
+      }
+    );
+  } else {
+    console.log("Error getting location");
+  }
+}
+
+getUserLocation();
 
 function buildUrl(endpoint, params) {
   const apiKey = "8ead1f058e524186846112307231508";
@@ -20,16 +40,30 @@ function buildUrl(endpoint, params) {
   return `${baseUrl}${endpoint}.json?${urlParams}`;
 }
 
-async function currentWeather() {
-  const url = buildUrl("current", { q: "London" });
+// currentWeather();
 
+const searchInput = select(".awesomplete");
+const awesomplete = new Awesomplete(searchInput);
+
+async function getAutoCompleteSuggestions() {
+  const query = searchInput.value.trim();
+  if (query.length < 3) {
+    awesomplete.list = [];
+    return;
+  }
+
+  const url = buildUrl("search", { q: query });
+  console.log(url);
   try {
     const response = await fetch(url);
-    const respJSON = await response.json();
-    console.log(respJSON);
+    if (!response.ok) throw new Error("Invalid");
+    const data = await response.json();
+    console.log(data);
+    const suggestions = data.map((item) => item.name);
+    awesomplete.list = suggestions;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
-// currentWeather();
+searchInput.addEventListener("input", getAutoCompleteSuggestions);

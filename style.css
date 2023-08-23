@@ -300,6 +300,32 @@ h2 {
   font-size: 1.5rem;
 }
 
+/* forecast date  */
+
+.forecastDate {
+  background: var(--white-color);
+  padding: 10px 30px;
+  border-radius: 10px;
+  display: flex;
+  gap: 20px;
+  justify-content: end;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+#forecastDate {
+  background-color: var(--color-1);
+  width: 100px;
+  padding: 5px;
+  color: var(--white-color);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: var(--shadow-elevation-low);
+}
+
 /* forecast table  */
 .forecast {
   background: var(--white-color);

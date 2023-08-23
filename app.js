@@ -160,6 +160,8 @@ async function getAutoCompleteSuggestions() {
   }
 }
 
+searchInput.addEventListener("input", getAutoCompleteSuggestions);
+
 function hourlyForecastInfo(data) {
   const tableBody = select(".forecast .table-container table tbody");
 
@@ -222,7 +224,7 @@ function weatherHighlights(data) {
   select(".avgVis p:last-child").textContent = `${data.day.avgvis_km} km`;
 }
 
-async function getWeatherData(queryVal) {
+async function getWeatherData(queryVal, dateIndex = 0) {
   const url = buildUrl("forecast", { q: queryVal, days: 3, aqi: "yes" });
 
   try {
@@ -230,8 +232,8 @@ async function getWeatherData(queryVal) {
     if (!response.ok) throw new Error("Invalid response");
     const data = await response.json();
     currentWeatherInfo(data);
-    hourlyForecastInfo(data.forecast.forecastday[0].hour);
-    weatherHighlights(data.forecast.forecastday[0]);
+    hourlyForecastInfo(data.forecast.forecastday[dateIndex].hour);
+    weatherHighlights(data.forecast.forecastday[dateIndex]);
 
     console.log(data);
   } catch (error) {
@@ -239,13 +241,30 @@ async function getWeatherData(queryVal) {
   }
 }
 
-searchInput.addEventListener("input", getAutoCompleteSuggestions);
-select(".searchBtn").addEventListener("click", () => {
-  const queryVal = searchInput.value.trim();
+let lastQuery = "auto:ip";
 
+function updateWeatherData(dateIndex) {
+  const queryVal = searchInput.value.trim();
+  const queryToUse = queryVal.length >= 3 ? queryVal : lastQuery;
+
+  getWeatherData(queryToUse, dateIndex);
+}
+
+const forecastDate = document.getElementById("forecastDate");
+
+forecastDate.addEventListener("change", (e) => {
+  const dateIndex = e.target.value;
+  updateWeatherData(dateIndex);
+});
+
+select(".searchBtn").addEventListener("click", () => {
+  const dateIndex = forecastDate.value;
+  const queryVal = searchInput.value.trim();
   if (queryVal.length >= 3) {
-    getWeatherData(queryVal);
+    lastQuery = queryVal;
+    getWeatherData(queryVal, dateIndex);
   }
 });
 
-getWeatherData("auto:ip");
+const initialDateIndex = forecastDate.value;
+getWeatherData(lastQuery, initialDateIndex);

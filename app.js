@@ -35,25 +35,36 @@ function formatDateAndTime(localtime) {
   return { formattedDate, lastUpdatedTime };
 }
 
-function getCurrentTime(tzId) {
+function getCurrentDateTime(tzId) {
   const date = new Date();
 
-  const options = {
+  const dateOptions = {
+    timeZone: tzId,
+    weekday: "short",
+    month: "short",
+    day: "2-digit",
+  };
+
+  const timeOptions = {
     timeZone: tzId,
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
   };
 
-  const formatter = new Intl.DateTimeFormat("en-US", options);
-  const formattedTime = formatter.format(date);
+  const dateFormatter = new Intl.DateTimeFormat("en-US", dateOptions);
+  const timeFormatter = new Intl.DateTimeFormat("en-US", timeOptions);
 
-  return formattedTime;
+  const formattedDate = dateFormatter.format(date);
+  const formattedTime = timeFormatter.format(date);
+
+  return { formattedDate, formattedTime };
 }
 
 function updateTimeDisplay(tzId) {
-  const formattedTime = getCurrentTime(tzId);
+  const { formattedDate, formattedTime } = getCurrentDateTime(tzId);
   select(".heading h2").textContent = formattedTime;
+  select(".location p").textContent = formattedDate;
 }
 
 function currentWeatherInfo(data) {
@@ -61,18 +72,20 @@ function currentWeatherInfo(data) {
     ".location h3"
   ).textContent = `${data.location.name}, ${data.location.country}`;
 
-  const { formattedDate, lastUpdatedTime } = formatDateAndTime(
-    data.location.localtime
-  );
+  const lastUpdatedTime = new Date(
+    data.current.last_updated
+  ).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   select(".lastUpdated p:last-child").textContent = lastUpdatedTime;
-
-  select(".location p").textContent = formattedDate;
 
   updateTimeDisplay(data.location.tz_id);
   setInterval(() => {
     updateTimeDisplay(data.location.tz_id);
-  }, 30000);
+  }, 60000);
 
   const iconUrl = `http:${data.current.condition.icon}`;
   select(".tempIcon").src = iconUrl;
@@ -125,15 +138,67 @@ async function getAutoCompleteSuggestions() {
   }
 }
 
-async function currentWeather(queryVal) {
-  const url = buildUrl("current", { q: queryVal });
+function hourlyForecastInfo(data) {
+  const tableBody = select(".hourly .table-container table tbody");
+
+  const timeCells = [];
+  const temperatureCells = [];
+  const conditionCells = [];
+  const rainChanceCells = [];
+  const windCells = [];
+  const humidityCells = [];
+  const feelsLikeCells = [];
+  const uvIndexCells = [];
+
+  data.forEach((hour) => {
+    const time = new Date(hour.time).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const iconUrl = `${hour.condition.icon}`;
+    const temperature = `${hour.temp_c}°`;
+    const condition = `${hour.condition.text}`;
+    const rainChance = `${hour.will_it_rain}`;
+    const wind = `${hour.wind_dir} ${hour.wind_kph} km/h`;
+    const humidity = `${hour.humidity}%`;
+    const feelsLike = `${hour.feelslike_c}°`;
+    const uvIndex = `${hour.uv} ${hour.uv < 3 ? "Low" : "High"}`;
+
+    timeCells.push(
+      `<td><div><img src="${iconUrl}"> <span>${time}</span></div></td>`
+    );
+    temperatureCells.push(`<td>${temperature}</td>`);
+    conditionCells.push(`<td>${condition}</td>`);
+    rainChanceCells.push(`<td>${rainChance}</td>`);
+    windCells.push(`<td>${wind}</td>`);
+    humidityCells.push(`<td>${humidity}</td>`);
+    feelsLikeCells.push(`<td>${feelsLike}</td>`);
+    uvIndexCells.push(`<td>${uvIndex}</td>`);
+  });
+
+  tableBody.innerHTML = `
+    <tr><th>Time</th>${timeCells.join("")}</tr>
+    <tr><th>Temperature</th>${temperatureCells.join("")}</tr>
+    <tr><th>Condition</th>${conditionCells.join("")}</tr>
+    <tr><th>Chance of Rain</th>${rainChanceCells.join("")}</tr>
+    <tr><th>Wind</th>${windCells.join("")}</tr>
+    <tr><th>Humidity</th>${humidityCells.join("")}</tr>
+    <tr><th>Feels Like</th>${feelsLikeCells.join("")}</tr>
+    <tr><th>UV Index</th>${uvIndexCells.join("")}</tr>
+  `;
+}
+
+async function getWeatherData(queryVal) {
+  const url = buildUrl("forecast", { q: queryVal, days: 3 });
 
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error("Invalid response");
     const data = await response.json();
-    console.log(data);
     currentWeatherInfo(data);
+    hourlyForecastInfo(data.forecast.forecastday[0].hour);
+    console.log(data);
   } catch (error) {
     console.error(error.message);
   }
@@ -144,29 +209,8 @@ select(".searchBtn").addEventListener("click", () => {
   const queryVal = searchInput.value.trim();
 
   if (queryVal.length >= 3) {
-    currentWeather(queryVal);
+    getWeatherData(queryVal);
   }
 });
 
-currentWeather("auto:ip");
-
-// helper function
-
-function getUserLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const long = position.coords.latitude;
-        console.log(lat, long);
-      },
-      (error) => {
-        console.error(`Error getting location: ${error.message}`);
-      }
-    );
-  } else {
-    console.log("Error getting location");
-  }
-}
-
-getUserLocation();
+getWeatherData("auto:ip");

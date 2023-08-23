@@ -335,7 +335,13 @@ tr:last-child th {
 
 tr:first-child td {
   font-weight: 700;
-  font-size: 1rem;
+  /* font-size: 1rem; */
+  padding: 0;
+}
+
+tr:first-child td div {
+  display: flex;
+  align-items: center;
 }
 
 tbody tr:nth-child(even) {

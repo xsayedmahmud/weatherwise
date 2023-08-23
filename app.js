@@ -21,18 +21,9 @@ function buildUrl(endpoint, params) {
   return `${baseUrl}${endpoint}.json?${urlParams}`;
 }
 
-function formatDateAndTime(localtime) {
-  const [date, time] = localtime.split(" ");
-  const [year, month, day] = date.split("-");
-  const [hour, minute] = time.split(":");
-
-  const dateTime = new Date(year, month - 1, day, hour, minute);
-  const optionsDate = { weekday: "short", month: "short", day: "numeric" };
-  const formattedDate = dateTime.toLocaleString("en-US", optionsDate);
-  const optionsTime = { hour: "2-digit", minute: "2-digit", hour12: true };
-  const lastUpdatedTime = dateTime.toLocaleString("en-US", optionsTime);
-
-  return { formattedDate, lastUpdatedTime };
+function selectTemp(tempC, tempF) {
+  const useFahrenheit = select(".toggleUnit input").checked;
+  return useFahrenheit ? tempF : tempC;
 }
 
 function getCurrentDateTime(tzId) {
@@ -104,13 +95,18 @@ function currentWeatherInfo(data) {
   const iconUrl = `http:${data.current.condition.icon}`;
   select(".tempIcon").src = iconUrl;
 
-  select(".curTemp").textContent = `${data.current.temp_c}°`;
+  const curTemp = selectTemp(data.current.temp_c, data.current.temp_f);
+
+  select(".curTemp").textContent = `${curTemp}°`;
 
   select(".condition").textContent = data.current.condition.text;
 
-  select(
-    ".feelsLike p:last-child"
-  ).textContent = `${data.current.feelslike_c}°`;
+  const feelsLike = selectTemp(
+    data.current.feelslike_c,
+    data.current.feelslike_f
+  );
+
+  select(".feelsLike p:last-child").textContent = `${feelsLike}°`;
 
   select(
     ".wind p:last-child"
@@ -181,7 +177,8 @@ function hourlyForecastInfo(data) {
       hour12: true,
     });
     const iconUrl = `${hour.condition.icon}`;
-    const temperature = `${hour.temp_c}°`;
+    const tempUnit = selectTemp(hour.temp_c, hour.temp_f);
+    const temperature = `${tempUnit}°`;
     const condition = `${hour.condition.text}`;
     const rainChance = `${hour.will_it_rain}`;
     const wind = `${hour.wind_dir} ${hour.wind_kph} km/h`;
@@ -214,8 +211,11 @@ function hourlyForecastInfo(data) {
 }
 
 function weatherHighlights(data) {
-  select(".highTemp p:last-child").textContent = `${data.day.maxtemp_c}°`;
-  select(".lowTemp p:last-child").textContent = `${data.day.mintemp_c}°`;
+  const maxTemp = selectTemp(data.day.maxtemp_c, data.day.maxtemp_f);
+  const minTemp = selectTemp(data.day.mintemp_c, data.day.mintemp_f);
+
+  select(".highTemp p:last-child").textContent = `${maxTemp}°`;
+  select(".lowTemp p:last-child").textContent = `${minTemp}°`;
   select(".sunrise p:last-child").textContent = `${data.astro.sunrise}`;
   select(".sunset p:last-child").textContent = `${data.astro.sunset}`;
   select(".moonrise p:last-child").textContent = `${data.astro.moonrise}`;
@@ -264,6 +264,11 @@ select(".searchBtn").addEventListener("click", () => {
     lastQuery = queryVal;
     getWeatherData(queryVal, dateIndex);
   }
+});
+
+select(".toggleUnit input").addEventListener("change", () => {
+  const dateIndex = forecastDate.value;
+  updateWeatherData(dateIndex);
 });
 
 const initialDateIndex = forecastDate.value;

@@ -67,6 +67,20 @@ function updateTimeDisplay(tzId) {
   select(".location p").textContent = formattedDate;
 }
 
+function getAirQuality(usEpaIndex, gbDefraIndex) {
+  let quality = "Unknown";
+
+  if (usEpaIndex === 2 || (gbDefraIndex >= 4 && gbDefraIndex <= 6)) {
+    quality = "Moderate";
+  } else if (usEpaIndex === 1 || (gbDefraIndex >= 1 && gbDefraIndex <= 3)) {
+    quality = "Good";
+  } else if (usEpaIndex >= 3 || gbDefraIndex >= 7) {
+    quality = "Poor";
+  }
+
+  return quality;
+}
+
 function currentWeatherInfo(data) {
   select(
     ".location h3"
@@ -113,6 +127,14 @@ function currentWeatherInfo(data) {
   select(".precip p:last-child").textContent = `${data.current.precip_mm} mm`;
 
   select(".cloud p:last-child").textContent = `${data.current.cloud}%`;
+
+  const usEpaIndex = data.current.air_quality["us-epa-index"];
+  const gbDefraIndex = data.current.air_quality["gb-defra-index"];
+
+  select(".aqi p:last-child").textContent = getAirQuality(
+    usEpaIndex,
+    gbDefraIndex
+  );
 }
 
 const searchInput = select(".awesomplete");
@@ -139,7 +161,7 @@ async function getAutoCompleteSuggestions() {
 }
 
 function hourlyForecastInfo(data) {
-  const tableBody = select(".hourly .table-container table tbody");
+  const tableBody = select(".forecast .table-container table tbody");
 
   const timeCells = [];
   const temperatureCells = [];
@@ -189,8 +211,19 @@ function hourlyForecastInfo(data) {
   `;
 }
 
+function weatherHighlights(data) {
+  select(".highTemp p:last-child").textContent = `${data.day.maxtemp_c}°`;
+  select(".lowTemp p:last-child").textContent = `${data.day.mintemp_c}°`;
+  select(".sunrise p:last-child").textContent = `${data.astro.sunrise}`;
+  select(".sunset p:last-child").textContent = `${data.astro.sunset}`;
+  select(".moonrise p:last-child").textContent = `${data.astro.moonrise}`;
+  select(".moonset p:last-child").textContent = `${data.astro.moonset}`;
+  select(".avgHumid p:last-child").textContent = `${data.day.avghumidity}%`;
+  select(".avgVis p:last-child").textContent = `${data.day.avgvis_km} km`;
+}
+
 async function getWeatherData(queryVal) {
-  const url = buildUrl("forecast", { q: queryVal, days: 3 });
+  const url = buildUrl("forecast", { q: queryVal, days: 3, aqi: "yes" });
 
   try {
     const response = await fetch(url);
@@ -198,6 +231,8 @@ async function getWeatherData(queryVal) {
     const data = await response.json();
     currentWeatherInfo(data);
     hourlyForecastInfo(data.forecast.forecastday[0].hour);
+    weatherHighlights(data.forecast.forecastday[0]);
+
     console.log(data);
   } catch (error) {
     console.error(error.message);

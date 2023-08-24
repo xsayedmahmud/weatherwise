@@ -70,6 +70,7 @@ h6 {
 
 body {
   font-family: var(--font-inter);
+  color: var(--txt-color);
 }
 
 .container {
@@ -226,7 +227,6 @@ body {
 
 .weatherInfo {
   width: 100%;
-  background: var(--bg-color);
 
   height: calc(100% - var(--header-height));
   margin-top: var(--header-height);
@@ -240,14 +240,13 @@ body {
   right: 0;
   height: var(--header-height);
   box-shadow: var(--shadow-elevation-medium);
-  z-index: 1000;
 }
 
 .wrapper {
   max-width: 1024px;
   margin: 0 auto;
   padding: 30px clamp(20px, 1.5vw, 50px);
-  color: var(--txt-color);
+  background: var(--bg-color);
 }
 
 .currentWeather,
@@ -259,7 +258,8 @@ body {
   border-radius: 20px;
 }
 
-.heading {
+.heading,
+.overviewHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -268,9 +268,10 @@ body {
 }
 
 .heading h3,
-h2 {
+.heading h2,
+.overviewHeader p {
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 .basicInfo > div,
@@ -358,12 +359,15 @@ h2 {
   background: var(--white-color);
   padding: 20px 30px 20px 30px;
   border-radius: 20px;
-  color: var(--txt-color);
 }
 
-.forecast h2 {
+.forecast .hourlyHeader {
   border-bottom: 2px solid var(--border-color);
   padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 table {

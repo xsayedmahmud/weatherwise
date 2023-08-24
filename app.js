@@ -1,7 +1,7 @@
 const select = (selector) => document.querySelector(selector);
 
 function updateMargin() {
-  const header = document.querySelector(".header");
+  const header = select(".header");
   const headerHeight = header.offsetHeight;
   document.documentElement.style.setProperty(
     "--header-height",
@@ -225,6 +225,7 @@ function weatherHighlights(data) {
 
 function updateForecastDates(forecastDays) {
   const selectDate = document.getElementById("forecastDate");
+  const { selectedIndex } = selectDate;
   selectDate.innerHTML = "";
 
   forecastDays.forEach((day, index) => {
@@ -239,6 +240,8 @@ function updateForecastDates(forecastDays) {
     option.textContent = formattedDate;
     selectDate.appendChild(option);
   });
+
+  selectDate.selectedIndex = selectedIndex;
 }
 
 async function getWeatherData(queryVal, dateIndex = 0) {
@@ -252,8 +255,6 @@ async function getWeatherData(queryVal, dateIndex = 0) {
     currentWeatherInfo(data);
     hourlyForecastInfo(data.forecast.forecastday[dateIndex].hour);
     weatherHighlights(data.forecast.forecastday[dateIndex]);
-
-    console.log(data);
   } catch (error) {
     console.error(error.message);
   }

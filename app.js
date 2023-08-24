@@ -13,7 +13,7 @@ window.addEventListener("resize", updateMargin);
 
 function buildUrl(endpoint, params) {
   const apiKey = "8ead1f058e524186846112307231508";
-  const baseUrl = "http://api.weatherapi.com/v1/";
+  const baseUrl = "https://api.weatherapi.com/v1/";
   const urlParams = new URLSearchParams({
     key: apiKey,
     ...params,

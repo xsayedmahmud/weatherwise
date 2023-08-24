@@ -2,10 +2,11 @@ const select = (selector) => document.querySelector(selector);
 
 function updateMargin() {
   const header = document.querySelector(".header");
-  const weatherInfo = document.querySelector(".weatherInfo");
   const headerHeight = header.offsetHeight;
-  weatherInfo.style.height = `calc(100% - ${headerHeight}px)`;
-  weatherInfo.style.marginTop = `${headerHeight}px`;
+  document.documentElement.style.setProperty(
+    "--header-height",
+    `${headerHeight}px`
+  );
 }
 window.addEventListener("load", updateMargin);
 window.addEventListener("resize", updateMargin);
@@ -73,9 +74,7 @@ function getAirQuality(usEpaIndex, gbDefraIndex) {
 }
 
 function currentWeatherInfo(data) {
-  select(
-    ".location h3"
-  ).textContent = `${data.location.name}, ${data.location.country}`;
+  select(".location h3").textContent = `${data.location.name}`;
 
   const lastUpdatedTime = new Date(
     data.current.last_updated
@@ -224,6 +223,24 @@ function weatherHighlights(data) {
   select(".avgVis p:last-child").textContent = `${data.day.avgvis_km} km`;
 }
 
+function updateForecastDates(forecastDays) {
+  const selectDate = document.getElementById("forecastDate");
+  selectDate.innerHTML = "";
+
+  forecastDays.forEach((day, index) => {
+    const date = new Date(day.date);
+    const formattedDate = date.toLocaleDateString("en-us", {
+      month: "short",
+      day: "2-digit",
+    });
+
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = formattedDate;
+    selectDate.appendChild(option);
+  });
+}
+
 async function getWeatherData(queryVal, dateIndex = 0) {
   const url = buildUrl("forecast", { q: queryVal, days: 3, aqi: "yes" });
 
@@ -231,6 +248,7 @@ async function getWeatherData(queryVal, dateIndex = 0) {
     const response = await fetch(url);
     if (!response.ok) throw new Error("Invalid response");
     const data = await response.json();
+    updateForecastDates(data.forecast.forecastday);
     currentWeatherInfo(data);
     hourlyForecastInfo(data.forecast.forecastday[dateIndex].hour);
     weatherHighlights(data.forecast.forecastday[dateIndex]);

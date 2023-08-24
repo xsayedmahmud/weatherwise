@@ -46,6 +46,7 @@ h6 {
   --border-color: #d3d2d2;
   --font-inter: "Inter", sans-serif;
   --font-raleway: "Raleway", sans-serif;
+  --header-height: 0px;
 }
 
 :root {
@@ -53,11 +54,18 @@ h6 {
   --shadow-elevation-low: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
     0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.34),
     1px 2px 2.5px -2.5px hsl(var(--shadow-color) / 0.34);
-  --shadow-elevation-medium: inset 0.3px 0.5px 0.7px
-      hsl(var(--shadow-color) / 0.36),
-    inset 0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
-    inset 2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
-    inset 5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
+  --shadow-elevation-medium: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.36),
+    0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
+    2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
+    5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
+  --shadow-elevation-high: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
+    1.5px 2.9px 3.7px -0.4px hsl(var(--shadow-color) / 0.34),
+    2.7px 5.4px 6.8px -0.7px hsl(var(--shadow-color) / 0.34),
+    4.5px 8.9px 11.2px -1.1px hsl(var(--shadow-color) / 0.34),
+    7.1px 14.3px 18px -1.4px hsl(var(--shadow-color) / 0.34),
+    11.2px 22.3px 28.1px -1.8px hsl(var(--shadow-color) / 0.34),
+    17px 33.9px 42.7px -2.1px hsl(var(--shadow-color) / 0.34),
+    25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.34);
 }
 
 body {
@@ -67,13 +75,20 @@ body {
 .container {
   min-width: 450px;
 }
-.header {
+
+.headerWrapper {
   background: #fff;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: min-content;
+  z-index: 10;
+}
+
+.header {
+  background: #fff;
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template:
     "logo searchBar location toggleUnit" min-content
@@ -117,7 +132,7 @@ body {
 }
 
 .searchBar input {
-  width: clamp(150px, 25vw, 400px);
+  width: clamp(150px, 30vw, 400px);
   height: 2.5rem;
   border-right: none;
   border: 1px solid lightgrey;
@@ -212,13 +227,25 @@ body {
 .weatherInfo {
   width: 100%;
   background: var(--bg-color);
+
+  height: calc(100% - var(--header-height));
+  margin-top: var(--header-height);
+}
+
+.weatherInfo::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
   box-shadow: var(--shadow-elevation-medium);
+  z-index: 1000;
 }
 
 .wrapper {
   max-width: 1024px;
   margin: 0 auto;
-  border: 1px solid lightgray;
   padding: 30px clamp(20px, 1.5vw, 50px);
   color: var(--txt-color);
 }
@@ -345,7 +372,6 @@ table {
   font-size: 0.8rem;
   border-collapse: separate;
   position: relative;
-  /* border-spacing: 0; */
 }
 
 td,
@@ -429,8 +455,9 @@ tbody tr:hover {
   }
 }
 
-@media (max-width: 500px) {
-  .basicInfo > div {
+@media (max-width: 650px) {
+  .basicInfo > div,
+  .overviewData > div {
     grid-template-columns: 1fr;
     gap: 0;
   }
@@ -450,7 +477,8 @@ tbody tr:hover {
     border-bottom: 1px solid var(--border-color);
   }
 
-  .basicInfo > div:last-child > div:first-child {
+  .basicInfo > div:last-child > div:first-child,
+  .overviewData > div:last-child > div:first-child {
     border-bottom: 1px solid var(--border-color);
   }
 }

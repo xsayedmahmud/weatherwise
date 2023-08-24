@@ -91,7 +91,7 @@ function currentWeatherInfo(data) {
     updateTimeDisplay(data.location.tz_id);
   }, 60000);
 
-  const iconUrl = `http:${data.current.condition.icon}`;
+  const iconUrl = `https:${data.current.condition.icon}`;
   select(".tempIcon").src = iconUrl;
 
   const curTemp = selectTemp(data.current.temp_c, data.current.temp_f);

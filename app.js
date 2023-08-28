@@ -58,6 +58,7 @@ function updateTimeDisplay(tzId) {
   select(".heading h2").textContent = formattedTime;
   select(".location p").textContent = formattedDate;
 }
+let updateTimeInterval;
 
 function getAirQuality(usEpaIndex, gbDefraIndex) {
   let quality = "Unknown";
@@ -86,9 +87,11 @@ function currentWeatherInfo(data) {
 
   select(".lastUpdated p:last-child").textContent = lastUpdatedTime;
 
-  updateTimeDisplay(data.location.tz_id);
-  setInterval(() => {
-    updateTimeDisplay(data.location.tz_id);
+  const currentTzId = data.location.tz_id;
+  clearInterval(updateTimeInterval);
+  updateTimeDisplay(currentTzId);
+  updateTimeInterval = setInterval(() => {
+    updateTimeDisplay(currentTzId);
   }, 60000);
 
   const iconUrl = `https:${data.current.condition.icon}`;
@@ -251,6 +254,7 @@ async function getWeatherData(queryVal, dateIndex = 0) {
     const response = await fetch(url);
     if (!response.ok) throw new Error("Invalid response");
     const data = await response.json();
+    console.log(data);
     updateForecastDates(data.forecast.forecastday);
     currentWeatherInfo(data);
     hourlyForecastInfo(data.forecast.forecastday[dateIndex].hour);
